@@ -223,9 +223,16 @@ export default function App() {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
-    for (const nextId of sequence.slice(currentIndex + 1, currentIndex + 4)) {
-      const preload = new Image();
-      preload.src = stimulusUrl(nextId, "webp");
+    const [nextId, ...laterIds] = sequence.slice(currentIndex + 1, currentIndex + 4);
+    if (nextId) {
+      const nextPreload = new Image();
+      nextPreload.onload = () => {
+        for (const laterId of laterIds) {
+          const laterPreload = new Image();
+          laterPreload.src = stimulusUrl(laterId, "webp");
+        }
+      };
+      nextPreload.src = stimulusUrl(nextId, "webp");
     }
   }, [currentIndex, page, sequence]);
 
