@@ -76,6 +76,16 @@ test("appeal instructions ignore subject styling but include the frame", () => {
   assert.match(app, /prompt="忽略人物的動作、表情、姿勢、服裝與造型；把照片當成包含外框的現場紀念成品，你整體有多喜歡？"/);
 });
 
+test("previous-photo navigation restores answers without duplicating rows", () => {
+  assert.match(app, /function goToPreviousRating\(\)/);
+  assert.match(app, /const previousRating = ratings\[previousIndex\]/);
+  assert.match(app, /setAppeal\(previousRating\.appeal\)/);
+  assert.match(app, /setNaturalness\(previousRating\.naturalness\)/);
+  assert.match(app, /nextRatings\[currentIndex\] = \{/);
+  assert.match(app, /currentIndex > 0 && <button[^>]*previous-button/);
+  assert.match(styles, /\.rating-actions \{/);
+});
+
 test("Google Sheets receiver writes linked participant and rating tables", () => {
   assert.match(receiver, /MOS_participants/);
   assert.match(receiver, /MOS_ratings/);
