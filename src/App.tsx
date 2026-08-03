@@ -202,6 +202,11 @@ export default function App() {
   useEffect(() => {
     if (page !== "rating") return;
     setItemStartedAt(Date.now());
+    // Run after React commits the next item so scroll anchoring cannot leave the
+    // participant below the newly changed photo.
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
     const nextId = sequence[currentIndex + 1];
     if (nextId) {
       const preload = new Image();
@@ -341,7 +346,6 @@ export default function App() {
       sequence,
       currentIndex: nextIndex,
     });
-    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function goToPreviousRating() {
@@ -363,7 +367,6 @@ export default function App() {
       sequence,
       currentIndex: previousIndex,
     });
-    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   return (
@@ -436,7 +439,16 @@ export default function App() {
             </div>
             <div className="photo-panel">
               <div className="photo-heading"><span>PHOTO</span><h1>照片 {displayId}</h1></div>
-              <div className="image-stage"><img src={`${import.meta.env.BASE_URL}stimuli/${displayId}.png`} alt={`評分照片 ${displayId}`} draggable="false" /></div>
+              <div className="image-stage">
+                <img
+                  key={`${currentIndex}-${displayId}`}
+                  src={`${import.meta.env.BASE_URL}stimuli/${displayId}.png`}
+                  alt={`評分照片 ${displayId}`}
+                  data-display-id={displayId}
+                  loading="eager"
+                  draggable="false"
+                />
+              </div>
             </div>
             <form onSubmit={submitRating} className="ratings-panel">
               <RatingScale name={`appeal-${currentIndex}`} prompt="忽略人物的動作、表情、姿勢、服裝與造型；把照片當成包含外框的現場紀念成品，你整體有多喜歡？" low="非常不喜歡" high="非常喜歡" value={appeal} onChange={setAppeal} />
