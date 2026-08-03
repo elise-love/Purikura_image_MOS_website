@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { buildRandomizedSequence } from "./sequence";
 
 declare global {
   interface Window {
@@ -11,7 +12,7 @@ declare global {
 }
 
 type Page = "welcome" | "background" | "instructions" | "rating" | "done" | "declined";
-type SequenceVersion = "V1" | "V2";
+type SequenceVersion = string;
 
 type Background = {
   photoboothFrequency: string;
@@ -36,6 +37,7 @@ type Draft = {
   page: "background" | "instructions" | "rating";
   background: Background;
   ratings: Rating[];
+  sequence: string[];
   currentIndex: number;
 };
 
@@ -47,20 +49,13 @@ type Payload = Draft & {
   consent: true;
 };
 
-const STORAGE_KEY = "photobooth-mos-draft-v2";
+const STORAGE_KEY = "photobooth-mos-draft-v3";
 const EMPTY_BACKGROUND: Background = {
   photoboothFrequency: "",
   imagingBackground: "",
   device: "",
   light: "",
 };
-
-const V1 = [
-  "P-265", "P-244", "P-204", "P-241", "P-261", "P-245", "P-284", "P-279",
-  "P-218", "P-257", "P-216", "P-288", "P-262", "P-219", "P-227",
-  "P-243", "P-258", "P-249", "P-201", "P-250", "P-230", "P-272", "P-237",
-  "P-290", "P-283", "P-267", "P-293", "P-214", "P-202", "P-259",
-];
 
 const CONFIG = {
   endpoint: window.MOS_CONFIG?.endpoint?.trim() ?? "",
@@ -71,15 +66,6 @@ const CONFIG = {
 function makeParticipantId() {
   const token = crypto.randomUUID().replaceAll("-", "").slice(0, 10).toUpperCase();
   return `MOS-${token}`;
-}
-
-function versionFor(id: string): SequenceVersion {
-  return id.charCodeAt(id.length - 1) % 2 === 0 ? "V1" : "V2";
-}
-
-function sequenceFor(version: SequenceVersion) {
-  if (version === "V1") return V1;
-  return [...V1].reverse();
 }
 
 function saveDraft(draft: Draft) {
@@ -196,7 +182,8 @@ export default function App() {
   const [page, setPage] = useState<Page>("welcome");
   const [consent, setConsent] = useState("");
   const [participantId, setParticipantId] = useState("");
-  const [sequenceVersion, setSequenceVersion] = useState<SequenceVersion>("V1");
+  const [sequenceVersion, setSequenceVersion] = useState<SequenceVersion>("R1");
+  const [sequence, setSequence] = useState<string[]>([]);
   const [startedAt, setStartedAt] = useState("");
   const [background, setBackground] = useState<Background>(EMPTY_BACKGROUND);
   const [ratings, setRatings] = useState<Rating[]>([]);
@@ -207,7 +194,6 @@ export default function App() {
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "offline" | "error">("idle");
   const [finalPayload, setFinalPayload] = useState<Payload | null>(null);
 
-  const sequence = useMemo(() => sequenceFor(sequenceVersion), [sequenceVersion]);
   const displayId = sequence[currentIndex];
 
   useEffect(() => {
@@ -222,21 +208,23 @@ export default function App() {
 
   function newSession() {
     const id = makeParticipantId();
-    const version = versionFor(id);
+    const randomized = buildRandomizedSequence(id);
     const now = new Date().toISOString();
     setParticipantId(id);
-    setSequenceVersion(version);
+    setSequenceVersion(randomized.sequenceVersion);
+    setSequence(randomized.sequence);
     setStartedAt(now);
     setBackground(EMPTY_BACKGROUND);
     setRatings([]);
     setCurrentIndex(0);
     saveDraft({
       participantId: id,
-      sequenceVersion: version,
+      sequenceVersion: randomized.sequenceVersion,
       startedAt: now,
       page: "background",
       background: EMPTY_BACKGROUND,
       ratings: [],
+      sequence: randomized.sequence,
       currentIndex: 0,
     });
     setPage("background");
@@ -253,6 +241,7 @@ export default function App() {
     if (!draft) return;
     setParticipantId(draft.participantId);
     setSequenceVersion(draft.sequenceVersion);
+    setSequence(draft.sequence);
     setStartedAt(draft.startedAt);
     setBackground(draft.background);
     setRatings(draft.ratings);
@@ -262,12 +251,12 @@ export default function App() {
 
   function submitBackground(event: FormEvent) {
     event.preventDefault();
-    saveDraft({ participantId, sequenceVersion, startedAt, page: "instructions", background, ratings, currentIndex });
+    saveDraft({ participantId, sequenceVersion, startedAt, page: "instructions", background, ratings, sequence, currentIndex });
     setPage("instructions");
   }
 
   function startRating() {
-    saveDraft({ participantId, sequenceVersion, startedAt, page: "rating", background, ratings, currentIndex });
+    saveDraft({ participantId, sequenceVersion, startedAt, page: "rating", background, ratings, sequence, currentIndex });
     setPage("rating");
   }
 
@@ -285,6 +274,7 @@ export default function App() {
       page: "rating",
       background,
       ratings: allRatings,
+      sequence,
       currentIndex: allRatings.length,
     };
     setFinalPayload(payload);
@@ -343,6 +333,7 @@ export default function App() {
       page: "rating",
       background,
       ratings: nextRatings,
+      sequence,
       currentIndex: nextIndex,
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
