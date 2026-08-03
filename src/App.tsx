@@ -145,6 +145,7 @@ function RatingScale({
   low,
   high,
   value,
+  disabled = false,
   onChange,
 }: {
   name: string;
@@ -153,6 +154,7 @@ function RatingScale({
   low: string;
   high: string;
   value: number | null;
+  disabled?: boolean;
   onChange: (value: number) => void;
 }) {
   return (
@@ -169,6 +171,7 @@ function RatingScale({
               value={score}
               checked={value === score}
               onChange={() => onChange(score)}
+              disabled={disabled}
               required
             />
             <b>{score}</b>
@@ -193,6 +196,7 @@ export default function App() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [appeal, setAppeal] = useState<number | null>(null);
   const [naturalness, setNaturalness] = useState<number | null>(null);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const [itemStartedAt, setItemStartedAt] = useState(Date.now());
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "offline" | "error">("idle");
   const [finalPayload, setFinalPayload] = useState<Payload | null>(null);
@@ -333,6 +337,7 @@ export default function App() {
 
     const nextIndex = currentIndex + 1;
     const nextRating = nextRatings[nextIndex];
+    setImageLoaded(false);
     setCurrentIndex(nextIndex);
     setAppeal(nextRating?.appeal ?? null);
     setNaturalness(nextRating?.naturalness ?? null);
@@ -354,6 +359,7 @@ export default function App() {
     const previousRating = ratings[previousIndex];
     if (!previousRating) return;
 
+    setImageLoaded(false);
     setCurrentIndex(previousIndex);
     setAppeal(previousRating.appeal);
     setNaturalness(previousRating.naturalness);
@@ -440,18 +446,20 @@ export default function App() {
             <div className="photo-panel">
               <div className="photo-heading"><span>PHOTO</span><h1>照片 {displayId}</h1></div>
               <div className="image-stage">
+                {!imageLoaded && <span className="image-loading" role="status">照片載入中，請稍候…</span>}
                 <img
                   key={`${currentIndex}-${displayId}`}
                   src={`${import.meta.env.BASE_URL}stimuli/${displayId}.png`}
                   alt={`評分照片 ${displayId}`}
                   data-display-id={displayId}
                   loading="eager"
+                  onLoad={() => setImageLoaded(true)}
                   draggable="false"
                 />
               </div>
             </div>
             <form onSubmit={submitRating} className="ratings-panel">
-              <RatingScale name={`appeal-${currentIndex}`} prompt="忽略人物的動作、表情、姿勢、服裝與造型；把照片當成包含外框的現場紀念成品，你整體有多喜歡？" low="非常不喜歡" high="非常喜歡" value={appeal} onChange={setAppeal} />
+              <RatingScale name={`appeal-${currentIndex}`} prompt="忽略人物的動作、表情、姿勢、服裝與造型；把照片當成包含外框的現場紀念成品，你整體有多喜歡？" low="非常不喜歡" high="非常喜歡" value={appeal} disabled={!imageLoaded} onChange={setAppeal} />
               <RatingScale
                 name={`naturalness-${currentIndex}`}
                 prompt="忽略人物的動作、表情、姿勢、服裝與造型，以及裝飾外框；只評估影像處理後的整體自然度。"
@@ -459,6 +467,7 @@ export default function App() {
                 low="非常不自然"
                 high="非常自然"
                 value={naturalness}
+                disabled={!imageLoaded}
                 onChange={setNaturalness}
               />
               <div className="rating-actions">
