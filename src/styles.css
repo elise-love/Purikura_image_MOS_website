@@ -102,8 +102,12 @@ h1 em { color: var(--coral); font-style: normal; }
 .score.selected { color: white; background: var(--ink); border-color: var(--ink); box-shadow: 0 6px 15px rgba(23,35,63,.18); }
 .score b { font-size: 20px; }
 .score small { max-width: 100%; font-size: 8px; line-height: 1.15; text-align: center; overflow-wrap: anywhere; min-height: 11px; margin-top: 2px; }
-.ratings-panel .primary-button { max-width: 300px; float: right; }
-.autosave { clear: both; text-align: right; color: var(--muted); font-size: 11px; padding-top: 12px; }
+.rating-actions { display: flex; justify-content: flex-end; gap: 10px; }
+.rating-actions > button { min-width: 0; }
+.rating-actions .primary-button { max-width: 300px; flex: 1 1 220px; }
+.rating-actions .previous-button { max-width: 160px; flex: 0 1 160px; }
+.previous-button span { margin-right: 7px; }
+.autosave { text-align: right; color: var(--muted); font-size: 11px; padding-top: 12px; }
 .finish { text-align: center; padding-top: 120px; }
 .finish .lead { margin-left: auto; margin-right: auto; }
 .success-mark { width: 72px; height: 72px; display: grid; place-items: center; border-radius: 50%; color: white; background: var(--teal); font-size: 34px; margin: 0 auto 28px; box-shadow: 0 12px 28px rgba(49,140,137,.25); }
@@ -146,7 +150,8 @@ footer { padding: 28px clamp(20px, 4vw, 64px); display: flex; justify-content: s
   .score { width: 100%; min-height: 54px; padding: 6px 0; border-radius: 8px; }
   .score b { font-size: 18px; }
   .score small { display: none; }
-  .ratings-panel .primary-button { max-width: none; float: none; }
+  .rating-actions .primary-button { max-width: none; }
+  .rating-actions .previous-button { max-width: 130px; }
   .autosave { text-align: center; }
   footer { flex-direction: column; }
 }
