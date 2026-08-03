@@ -63,6 +63,10 @@ const CONFIG = {
   allowOfflineExport: window.MOS_CONFIG?.allowOfflineExport ?? true,
 };
 
+function stimulusUrl(displayId: string, extension: "webp" | "png") {
+  return `${import.meta.env.BASE_URL}stimuli/${displayId}.${extension}`;
+}
+
 function makeParticipantId() {
   const token = crypto.randomUUID().replaceAll("-", "").slice(0, 10).toUpperCase();
   return `MOS-${token}`;
@@ -204,6 +208,14 @@ export default function App() {
   const displayId = sequence[currentIndex];
 
   useEffect(() => {
+    if (page !== "instructions") return;
+    const firstId = sequence[currentIndex];
+    if (!firstId) return;
+    const preload = new Image();
+    preload.src = stimulusUrl(firstId, "webp");
+  }, [currentIndex, page, sequence]);
+
+  useEffect(() => {
     if (page !== "rating") return;
     setItemStartedAt(Date.now());
     // Run after React commits the next item so scroll anchoring cannot leave the
@@ -211,10 +223,9 @@ export default function App() {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
-    const nextId = sequence[currentIndex + 1];
-    if (nextId) {
+    for (const nextId of sequence.slice(currentIndex + 1, currentIndex + 4)) {
       const preload = new Image();
-      preload.src = `${import.meta.env.BASE_URL}stimuli/${nextId}.png`;
+      preload.src = stimulusUrl(nextId, "webp");
     }
   }, [currentIndex, page, sequence]);
 
@@ -447,15 +458,18 @@ export default function App() {
               <div className="photo-heading"><span>PHOTO</span><h1>照片 {displayId}</h1></div>
               <div className="image-stage">
                 {!imageLoaded && <span className="image-loading" role="status">照片載入中，請稍候…</span>}
-                <img
-                  key={`${currentIndex}-${displayId}`}
-                  src={`${import.meta.env.BASE_URL}stimuli/${displayId}.png`}
-                  alt={`評分照片 ${displayId}`}
-                  data-display-id={displayId}
-                  loading="eager"
-                  onLoad={() => setImageLoaded(true)}
-                  draggable="false"
-                />
+                <picture key={`${currentIndex}-${displayId}`}>
+                  <source srcSet={stimulusUrl(displayId, "webp")} type="image/webp" />
+                  <img
+                    src={stimulusUrl(displayId, "png")}
+                    alt={`評分照片 ${displayId}`}
+                    data-display-id={displayId}
+                    loading="eager"
+                    fetchPriority="high"
+                    onLoad={() => setImageLoaded(true)}
+                    draggable="false"
+                  />
+                </picture>
               </div>
             </div>
             <form onSubmit={submitRating} className="ratings-panel">
