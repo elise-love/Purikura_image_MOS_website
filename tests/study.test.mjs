@@ -61,6 +61,16 @@ test("mobile rating controls cannot force horizontal overflow", () => {
   assert.match(styles, /@media \(max-width: 560px\)[\s\S]*\.choice-grid \{ grid-template-columns: minmax\(0, 1fr\); \}/);
 });
 
+test("naturalness instructions isolate image-processing quality", () => {
+  for (const ignoredSubjectFactor of ["動作", "表情", "姿勢", "服裝", "造型", "裝飾外框"]) {
+    assert.match(app, new RegExp(ignoredSubjectFactor));
+  }
+  for (const imageQualityCue of ["明暗", "曝光", "過亮", "過暗", "飽和", "膚色", "銳化", "邊緣", "處理痕跡"]) {
+    assert.match(app, new RegExp(imageQualityCue));
+  }
+  assert.match(styles, /\.rating-hint \{/);
+});
+
 test("Google Sheets receiver writes linked participant and rating tables", () => {
   assert.match(receiver, /MOS_participants/);
   assert.match(receiver, /MOS_ratings/);
