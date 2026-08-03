@@ -11,6 +11,7 @@ import {
 const app = readFileSync(new URL("../src/App.tsx", import.meta.url), "utf8");
 const sequenceSource = readFileSync(new URL("../src/sequence.ts", import.meta.url), "utf8");
 const styles = readFileSync(new URL("../src/styles.css", import.meta.url), "utf8");
+const receiver = readFileSync(new URL("../google-apps-script/Code.gs", import.meta.url), "utf8");
 const stimuli = readdirSync(new URL("../public/stimuli", import.meta.url)).filter((name) => name.endsWith(".png"));
 
 test("contains 30 blinded image assets (27 formal + 3 repeats)", () => {
@@ -57,4 +58,14 @@ test("mobile rating controls cannot force horizontal overflow", () => {
   assert.match(styles, /repeat\(5, minmax\(0, 1fr\)\)/);
   assert.match(styles, /\.rating-prompt \{[^}]*overflow-wrap: anywhere;/);
   assert.match(styles, /@media \(max-width: 560px\)[\s\S]*\.choice-grid \{ grid-template-columns: minmax\(0, 1fr\); \}/);
+});
+
+test("Google Sheets receiver writes linked participant and rating tables", () => {
+  assert.match(receiver, /MOS_participants/);
+  assert.match(receiver, /MOS_ratings/);
+  assert.match(receiver, /participantRowsAdded:\s*1/);
+  assert.match(receiver, /ratingRowsAdded:\s*ratingRows\.length/);
+  assert.match(receiver, /repeat_mae_appeal/);
+  assert.match(receiver, /repeat_mae_naturalness/);
+  assert.equal(receiver.includes("deleteSheet"), false);
 });
