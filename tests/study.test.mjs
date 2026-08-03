@@ -12,6 +12,7 @@ const app = readFileSync(new URL("../src/App.tsx", import.meta.url), "utf8");
 const sequenceSource = readFileSync(new URL("../src/sequence.ts", import.meta.url), "utf8");
 const styles = readFileSync(new URL("../src/styles.css", import.meta.url), "utf8");
 const receiver = readFileSync(new URL("../google-apps-script/Code.gs", import.meta.url), "utf8");
+const readme = readFileSync(new URL("../README.md", import.meta.url), "utf8");
 const stimuli = readdirSync(new URL("../public/stimuli", import.meta.url)).filter((name) => name.endsWith(".png"));
 
 test("contains 30 blinded image assets (27 formal + 3 repeats)", () => {
@@ -68,4 +69,10 @@ test("Google Sheets receiver writes linked participant and rating tables", () =>
   assert.match(receiver, /repeat_mae_appeal/);
   assert.match(receiver, /repeat_mae_naturalness/);
   assert.equal(receiver.includes("deleteSheet"), false);
+});
+
+test("Hsinchu best style-2 mapping uses the corrected source filename", () => {
+  assert.match(readme, /Lab_best_2\.png/);
+  assert.match(readme, /P-257（重複題 P-201）/);
+  assert.equal(readme.includes("Lab_default_1.png` 的條件名稱有歧義"), false);
 });
