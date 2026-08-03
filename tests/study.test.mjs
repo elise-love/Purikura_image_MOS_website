@@ -1,8 +1,15 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
+import {
+  buildRandomizedSequence,
+  FORMAL_IDS,
+  MIN_INTERVENING_SCREENS,
+  REPEAT_PAIRS,
+} from "../src/sequence.ts";
 
 const app = readFileSync(new URL("../src/App.tsx", import.meta.url), "utf8");
+const sequenceSource = readFileSync(new URL("../src/sequence.ts", import.meta.url), "utf8");
 const styles = readFileSync(new URL("../src/styles.css", import.meta.url), "utf8");
 const stimuli = readdirSync(new URL("../public/stimuli", import.meta.url)).filter((name) => name.endsWith(".png"));
 
@@ -13,26 +20,36 @@ test("contains 30 blinded image assets (27 formal + 3 repeats)", () => {
 
 test("public app source does not expose experimental condition labels", () => {
   for (const secret of ['"default"', '"best"', '"worst"', "Hsinchu", "Chiayi", "Tainan"]) {
-    assert.equal(app.includes(secret), false, `public source leaked: ${secret}`);
+    assert.equal(`${app}\n${sequenceSource}`.includes(secret), false, `public source leaked: ${secret}`);
   }
 });
 
-test("V1 contains 30 rating screens and no attention check", () => {
-  const match = app.match(/const V1 = \[([\s\S]*?)\];/);
-  assert.ok(match);
-  const ids = [...match[1].matchAll(/"(P-\d{3})"/g)].map((item) => item[1]);
-  assert.equal(ids.length, 30);
-  assert.equal(ids.includes("P-210"), false);
+test("stimulus plan contains 27 formal screens and three hidden repeats", () => {
+  assert.equal(FORMAL_IDS.length, 27);
+  assert.equal(REPEAT_PAIRS.length, 3);
+  const ids = [...FORMAL_IDS, ...REPEAT_PAIRS.map((pair) => pair.repeat)];
+  assert.equal(new Set(ids).size, 30);
   const expectedAssets = ids.map((id) => `${id}.png`).sort();
   assert.deepEqual(stimuli.sort(), expectedAssets);
 });
 
-test("test-retest pairs are separated by at least eight screens", () => {
-  const match = app.match(/const V1 = \[([\s\S]*?)\];/);
-  const ids = [...match[1].matchAll(/"(P-\d{3})"/g)].map((item) => item[1]);
-  for (const [first, repeated] of [["P-257", "P-201"], ["P-227", "P-283"], ["P-243", "P-293"]]) {
-    assert.ok(Math.abs(ids.indexOf(first) - ids.indexOf(repeated)) >= 8);
+test("participant-specific sequences are deterministic and constrained", () => {
+  const observedOrders = new Set();
+  for (let index = 0; index < 500; index += 1) {
+    const participantId = `MOS-TEST-${index}`;
+    const first = buildRandomizedSequence(participantId);
+    const second = buildRandomizedSequence(participantId);
+    assert.deepEqual(first, second);
+    assert.equal(first.sequence.length, 30);
+    assert.equal(new Set(first.sequence).size, 30);
+    assert.match(first.sequenceVersion, /^R1-[0-9a-f]{8}$/);
+    for (const pair of REPEAT_PAIRS) {
+      const intervening = Math.abs(first.sequence.indexOf(pair.original) - first.sequence.indexOf(pair.repeat)) - 1;
+      assert.ok(intervening >= MIN_INTERVENING_SCREENS);
+    }
+    observedOrders.add(first.sequence.join(","));
   }
+  assert.ok(observedOrders.size > 490);
 });
 
 test("mobile rating controls cannot force horizontal overflow", () => {
