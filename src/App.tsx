@@ -141,6 +141,7 @@ function ChoiceGroup({
 function RatingScale({
   name,
   prompt,
+  hint,
   low,
   high,
   value,
@@ -148,6 +149,7 @@ function RatingScale({
 }: {
   name: string;
   prompt: string;
+  hint?: string;
   low: string;
   high: string;
   value: number | null;
@@ -156,6 +158,7 @@ function RatingScale({
   return (
     <div className="rating-scale" role="group" aria-labelledby={`${name}-prompt`}>
       <p className="rating-prompt" id={`${name}-prompt`}>{prompt}</p>
+      {hint && <p className="rating-hint">{hint}</p>}
       <div className="scale-labels" aria-hidden="true"><span>{low}</span><span>{high}</span></div>
       <div className="scale-options">
         {[1, 2, 3, 4, 5].map((score) => (
@@ -393,7 +396,7 @@ export default function App() {
               <span>01</span><div><h2>整體喜歡度</h2><p>把照片當成一份現場紀念成品，<b>包含它的外框</b>，你整體有多喜歡？</p></div>
             </div>
             <div className="instruction-card natural-card">
-              <span>02</span><div><h2>自然度</h2><p>只看人物與畫面，<b>忽略裝飾外框</b>。它自然嗎？有沒有過亮、過飽和、膚色不對或銳化過頭？</p></div>
+              <span>02</span><div><h2>影像自然度</h2><p><b>請忽略人物本身的動作、表情、姿勢、服裝與造型，也忽略裝飾外框</b>，只評估影像處理後的畫面是否自然。請觀察整體明暗與曝光是否合理（有沒有過亮或過暗）、色彩是否過度飽和、膚色是否自然，以及是否有銳化過頭、邊緣不自然或其他明顯的影像處理痕跡。</p></div>
             </div>
             <div className="scale-demo"><span>1<br /><small>最低</small></span><i /><span>2</span><i /><span>3<br /><small>普通</small></span><i /><span>4</span><i /><span>5<br /><small>最高</small></span></div>
             <aside className="study-note"><b>請依第一直覺作答</b><p>不要回頭比較，也沒有標準答案。整份問卷請維持同一台裝置、相同螢幕亮度與瀏覽器縮放比例。</p></aside>
@@ -413,7 +416,15 @@ export default function App() {
             </div>
             <form onSubmit={submitRating} className="ratings-panel">
               <RatingScale name={`appeal-${currentIndex}`} prompt="你整體有多喜歡這張照片？（把它當成一份含外框的現場紀念成品）" low="非常不喜歡" high="非常喜歡" value={appeal} onChange={setAppeal} />
-              <RatingScale name={`naturalness-${currentIndex}`} prompt="只看人物與畫面（忽略外框），這張照片看起來有多自然？" low="非常不自然" high="非常自然" value={naturalness} onChange={setNaturalness} />
+              <RatingScale
+                name={`naturalness-${currentIndex}`}
+                prompt="忽略人物的動作、表情、姿勢、服裝與造型，以及裝飾外框；只評估影像處理後的整體自然度。"
+                hint="請留意明暗與曝光（過亮或過暗）、色彩飽和度、膚色、銳化程度，以及是否有不自然的邊緣或其他處理痕跡。"
+                low="非常不自然"
+                high="非常自然"
+                value={naturalness}
+                onChange={setNaturalness}
+              />
               <button className="primary-button" type="submit" disabled={appeal === null || naturalness === null}>{currentIndex === sequence.length - 1 ? "送出評分" : "下一張"} <span aria-hidden="true">→</span></button>
               <p className="autosave">已自動儲存目前進度</p>
             </form>
