@@ -58,7 +58,7 @@ pnpm run build
 - `sequence_version` 記錄隨機化演算法版本與 seed；每列的 `order` 與 `display_id` 可重建實際呈現順序。
 - P-201 ↔ P-257、P-283 ↔ P-227、P-293 ↔ P-243 是 test–retest 配對。
 - 先用 `analysis-key.csv` 依 `display_id` 解盲，再分別計算 appeal 與 naturalness。
-- 新竹 `Lab_default_1.png` 的條件名稱有歧義；細節與上線前核對要求請見 `research_private/README.md`。
+- 新竹 best／style2 的來源檔名已確認修正為 `Lab_best_2.png`，對應 P-257（重複題 P-201）。
 
 ## 6. 雙工作表資料結構
 
