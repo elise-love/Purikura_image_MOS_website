@@ -97,7 +97,8 @@ test("each rating remounts the stimulus image and returns to the photo", () => {
   assert.match(app, /onLoad=\{\(\) => setImageLoaded\(true\)\}/);
   assert.match(app, /disabled=\{!imageLoaded\}/);
   assert.match(app, /<source srcSet=\{stimulusUrl\(displayId, "webp"\)\} type="image\/webp" \/>/);
-  assert.match(app, /sequence\.slice\(currentIndex \+ 1, currentIndex \+ 4\)/);
+  assert.match(app, /const \[nextId, \.\.\.laterIds\] = sequence\.slice\(currentIndex \+ 1, currentIndex \+ 4\)/);
+  assert.match(app, /nextPreload\.onload = \(\) => \{/);
 });
 
 test("Google Sheets receiver writes linked participant and rating tables", () => {
