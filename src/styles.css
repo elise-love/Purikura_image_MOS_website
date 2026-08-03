@@ -94,6 +94,7 @@ h1 em { color: var(--coral); font-style: normal; }
 .ratings-panel { min-width: 0; margin-left: 199px; }
 .rating-scale { width: 100%; min-width: 0; border: 1px solid var(--line); border-radius: 16px; padding: 24px; margin: 14px 0; background: var(--paper); }
 .rating-prompt { width: 100%; max-width: 100%; min-width: 0; margin: 0 0 18px; font-size: 17px; line-height: 1.55; font-weight: 700; overflow-wrap: anywhere; }
+.rating-hint { width: 100%; max-width: 100%; margin: -8px 0 18px; padding: 11px 13px; border-left: 3px solid var(--teal); background: #edf7f5; color: #4d586e; font-size: 13px; line-height: 1.65; overflow-wrap: anywhere; }
 .scale-labels { display: flex; justify-content: space-between; color: var(--muted); font-size: 11px; margin: 0 5px 7px; }
 .scale-options { min-width: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
 .score { min-width: 0; min-height: 62px; padding: 7px 2px; border: 1px solid var(--line); border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: white; transition: .14s ease; }
@@ -137,6 +138,7 @@ footer { padding: 28px clamp(20px, 4vw, 64px); display: flex; justify-content: s
   .photo-heading { flex-wrap: wrap; }
   .rating-scale { padding: 18px 10px; overflow: hidden; }
   .rating-prompt { width: 100%; max-width: 100%; padding: 0 2px; font-size: 15px; line-height: 1.55; }
+  .rating-hint { margin: -7px 2px 16px; padding: 10px 11px; font-size: 12px; line-height: 1.6; }
   .scale-labels { display: flex; gap: 12px; margin: 0 2px 8px; line-height: 1.25; }
   .scale-labels span { max-width: 46%; }
   .scale-labels span:last-child { margin-left: auto; text-align: right; }
