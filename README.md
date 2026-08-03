@@ -1,6 +1,6 @@
 # Photo Booth 人類 MOS 評分網站
 
-這是一個可部署到 GitHub Pages 的匿名、雙盲、5 分制 ACR 評分網站。網站包含 27 張正式刺激圖、3 張一致性重複與 1 個注意力檢核，並將參與者平均分派到正序／反序兩個平衡版本。
+這是一個可部署到 GitHub Pages 的匿名、雙盲、5 分制 ACR 評分網站。網站包含 27 張正式刺激圖與 3 張一致性重複，並將參與者平均分派到正序／反序兩個平衡版本。
 
 ## 1. 先連接 Google 試算表
 
@@ -12,7 +12,7 @@ GitHub Pages 本身不能接收資料，因此本專案用 Google Apps Script �
 4. 按「部署 → 新增部署作業 → 網頁應用程式」。
 5. 執行身分選「我」，誰可以存取選「任何人」。
 6. 複製部署後的 `/exec` 網址，貼進 `config.js` 的 `endpoint`。
-7. 先完整試填一次，確認試算表自動出現 `MOS_responses` 工作表與 31 筆資料列。
+7. 先完整試填一次，確認試算表自動出現 `MOS_responses` 工作表與 30 筆資料列。
 
 ## 2. 部署 GitHub Pages
 
@@ -47,7 +47,6 @@ pnpm run build
 
 ## 5. 分析注意事項
 
-- 排除 P-210 注意力檢核後再計算 MOS。
 - P-201 ↔ P-257、P-283 ↔ P-227、P-293 ↔ P-243 是 test–retest 配對。
 - 先用 `analysis-key.csv` 依 `display_id` 解盲，再分別計算 appeal 與 naturalness。
 - 新竹 `Lab_default_1.png` 的條件名稱有歧義；細節與上線前核對要求請見 `research_private/README.md`。
