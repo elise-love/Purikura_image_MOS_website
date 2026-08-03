@@ -90,6 +90,7 @@ h1 em { color: var(--coral); font-style: normal; }
 .photo-heading span { color: var(--coral); font-size: 11px; font-weight: 800; letter-spacing: .18em; }
 .photo-heading h1 { font-size: clamp(28px, 4vw, 46px); line-height: 1.05; margin-top: 9px; }
 .image-stage { position: relative; background: #0f1729; border-radius: 16px; min-height: 320px; overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: 0 22px 55px rgba(23,35,63,.16); }
+.image-stage picture { display: contents; }
 .image-stage img { display: block; width: 100%; max-height: 64vh; object-fit: contain; user-select: none; }
 .image-loading { position: absolute; inset: 0; display: grid; place-items: center; color: #fff; font-weight: 700; letter-spacing: .04em; background: #0f1729; z-index: 1; }
 .ratings-panel { min-width: 0; margin-left: 199px; }
