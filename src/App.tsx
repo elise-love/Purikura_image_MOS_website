@@ -242,6 +242,7 @@ export default function App() {
   function resumeSession() {
     const draft = loadDraft();
     if (!draft) return;
+    const currentRating = draft.ratings[draft.currentIndex];
     setParticipantId(draft.participantId);
     setSequenceVersion(draft.sequenceVersion);
     setSequence(draft.sequence);
@@ -249,6 +250,8 @@ export default function App() {
     setBackground(draft.background);
     setRatings(draft.ratings);
     setCurrentIndex(draft.currentIndex);
+    setAppeal(currentRating?.appeal ?? null);
+    setNaturalness(currentRating?.naturalness ?? null);
     setPage(draft.page);
   }
 
@@ -307,20 +310,16 @@ export default function App() {
   function submitRating(event: FormEvent) {
     event.preventDefault();
     if (appeal === null || naturalness === null) return;
-    const nextRatings = [
-      ...ratings,
-      {
-        order: currentIndex + 1,
-        displayId,
-        appeal,
-        naturalness,
-        responseMs: Date.now() - itemStartedAt,
-        attentionCheck: false,
-      },
-    ];
+    const nextRatings = [...ratings];
+    nextRatings[currentIndex] = {
+      order: currentIndex + 1,
+      displayId,
+      appeal,
+      naturalness,
+      responseMs: Date.now() - itemStartedAt,
+      attentionCheck: false,
+    };
     setRatings(nextRatings);
-    setAppeal(null);
-    setNaturalness(null);
 
     if (currentIndex === sequence.length - 1) {
       void finishStudy(nextRatings);
@@ -328,7 +327,10 @@ export default function App() {
     }
 
     const nextIndex = currentIndex + 1;
+    const nextRating = nextRatings[nextIndex];
     setCurrentIndex(nextIndex);
+    setAppeal(nextRating?.appeal ?? null);
+    setNaturalness(nextRating?.naturalness ?? null);
     saveDraft({
       participantId,
       sequenceVersion,
@@ -338,6 +340,28 @@ export default function App() {
       ratings: nextRatings,
       sequence,
       currentIndex: nextIndex,
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function goToPreviousRating() {
+    if (currentIndex <= 0) return;
+    const previousIndex = currentIndex - 1;
+    const previousRating = ratings[previousIndex];
+    if (!previousRating) return;
+
+    setCurrentIndex(previousIndex);
+    setAppeal(previousRating.appeal);
+    setNaturalness(previousRating.naturalness);
+    saveDraft({
+      participantId,
+      sequenceVersion,
+      startedAt,
+      page: "rating",
+      background,
+      ratings,
+      sequence,
+      currentIndex: previousIndex,
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -399,7 +423,7 @@ export default function App() {
               <span>02</span><div><h2>影像自然度</h2><p><b>請忽略人物本身的動作、表情、姿勢、服裝與造型，也忽略裝飾外框</b>，只評估影像處理後的畫面是否自然。請觀察整體明暗與曝光是否合理（有沒有過亮或過暗）、色彩是否過度飽和、膚色是否自然，以及是否有銳化過頭、邊緣不自然或其他明顯的影像處理痕跡。</p></div>
             </div>
             <div className="scale-demo"><span>1<br /><small>最低</small></span><i /><span>2</span><i /><span>3<br /><small>普通</small></span><i /><span>4</span><i /><span>5<br /><small>最高</small></span></div>
-            <aside className="study-note"><b>請依第一直覺作答</b><p>不要回頭比較，也沒有標準答案。整份問卷請維持同一台裝置、相同螢幕亮度與瀏覽器縮放比例。</p></aside>
+            <aside className="study-note"><b>請依第一直覺作答</b><p>如需修正可返回上一張，但請勿來回反覆比較多張照片，也沒有標準答案。整份問卷請維持同一台裝置、相同螢幕亮度與瀏覽器縮放比例。</p></aside>
             <button className="primary-button" type="button" onClick={startRating}>開始評分 <span aria-hidden="true">→</span></button>
           </section>
         )}
@@ -425,7 +449,10 @@ export default function App() {
                 value={naturalness}
                 onChange={setNaturalness}
               />
-              <button className="primary-button" type="submit" disabled={appeal === null || naturalness === null}>{currentIndex === sequence.length - 1 ? "送出評分" : "下一張"} <span aria-hidden="true">→</span></button>
+              <div className="rating-actions">
+                {currentIndex > 0 && <button className="secondary-button previous-button" type="button" onClick={goToPreviousRating}><span aria-hidden="true">←</span> 上一張</button>}
+                <button className="primary-button" type="submit" disabled={appeal === null || naturalness === null}>{currentIndex === sequence.length - 1 ? "送出評分" : "下一張"} <span aria-hidden="true">→</span></button>
+              </div>
               <p className="autosave">已自動儲存目前進度</p>
             </form>
           </section>
