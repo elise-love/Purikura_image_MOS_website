@@ -71,6 +71,11 @@ test("naturalness instructions isolate image-processing quality", () => {
   assert.match(styles, /\.rating-hint \{/);
 });
 
+test("appeal instructions ignore subject styling but include the frame", () => {
+  assert.match(app, /整體喜歡度[\s\S]*請忽略人物本身的動作、表情、姿勢、服裝與造型/);
+  assert.match(app, /prompt="忽略人物的動作、表情、姿勢、服裝與造型；把照片當成包含外框的現場紀念成品，你整體有多喜歡？"/);
+});
+
 test("Google Sheets receiver writes linked participant and rating tables", () => {
   assert.match(receiver, /MOS_participants/);
   assert.match(receiver, /MOS_ratings/);
