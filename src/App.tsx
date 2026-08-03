@@ -47,7 +47,7 @@ type Payload = Draft & {
   consent: true;
 };
 
-const STORAGE_KEY = "photobooth-mos-draft-v1";
+const STORAGE_KEY = "photobooth-mos-draft-v2";
 const EMPTY_BACKGROUND: Background = {
   photoboothFrequency: "",
   imagingBackground: "",
@@ -57,7 +57,7 @@ const EMPTY_BACKGROUND: Background = {
 
 const V1 = [
   "P-265", "P-244", "P-204", "P-241", "P-261", "P-245", "P-284", "P-279",
-  "P-218", "P-257", "P-216", "P-288", "P-262", "P-219", "P-227", "P-210",
+  "P-218", "P-257", "P-216", "P-288", "P-262", "P-219", "P-227",
   "P-243", "P-258", "P-249", "P-201", "P-250", "P-230", "P-272", "P-237",
   "P-290", "P-283", "P-267", "P-293", "P-214", "P-202", "P-259",
 ];
@@ -79,9 +79,7 @@ function versionFor(id: string): SequenceVersion {
 
 function sequenceFor(version: SequenceVersion) {
   if (version === "V1") return V1;
-  const items = V1.filter((id) => id !== "P-210").reverse();
-  items.splice(15, 0, "P-210");
-  return items;
+  return [...V1].reverse();
 }
 
 function saveDraft(draft: Draft) {
@@ -170,8 +168,8 @@ function RatingScale({
   onChange: (value: number) => void;
 }) {
   return (
-    <fieldset className="rating-scale">
-      <legend>{prompt}</legend>
+    <div className="rating-scale" role="group" aria-labelledby={`${name}-prompt`}>
+      <p className="rating-prompt" id={`${name}-prompt`}>{prompt}</p>
       <div className="scale-labels" aria-hidden="true"><span>{low}</span><span>{high}</span></div>
       <div className="scale-options">
         {[1, 2, 3, 4, 5].map((score) => (
@@ -189,7 +187,7 @@ function RatingScale({
           </label>
         ))}
       </div>
-    </fieldset>
+    </div>
   );
 }
 
@@ -211,13 +209,12 @@ export default function App() {
 
   const sequence = useMemo(() => sequenceFor(sequenceVersion), [sequenceVersion]);
   const displayId = sequence[currentIndex];
-  const attentionCheck = displayId === "P-210";
 
   useEffect(() => {
     if (page !== "rating") return;
     setItemStartedAt(Date.now());
     const nextId = sequence[currentIndex + 1];
-    if (nextId && nextId !== "P-210") {
+    if (nextId) {
       const preload = new Image();
       preload.src = `${import.meta.env.BASE_URL}stimuli/${nextId}.png`;
     }
@@ -325,7 +322,7 @@ export default function App() {
         appeal,
         naturalness,
         responseMs: Date.now() - itemStartedAt,
-        attentionCheck,
+        attentionCheck: false,
       },
     ];
     setRatings(nextRatings);
@@ -361,7 +358,7 @@ export default function App() {
             <h1>照片品質<br /><em>感受調查</em></h1>
             <p className="lead">看一組 Photo Booth 紀念照片，憑第一直覺告訴我們：你喜歡它嗎？它看起來自然嗎？</p>
             <div className="facts" aria-label="調查資訊">
-              <span><b>31</b><small>個評分畫面</small></span>
+              <span><b>30</b><small>個評分畫面</small></span>
               <span><b>1–5</b><small>分直覺評分</small></span>
               <span><b>12–15</b><small>分鐘完成</small></span>
             </div>
@@ -421,15 +418,11 @@ export default function App() {
             </div>
             <div className="photo-panel">
               <div className="photo-heading"><span>PHOTO</span><h1>照片 {displayId}</h1></div>
-              {attentionCheck ? (
-                <div className="attention-card"><span aria-hidden="true">◎</span><h2>專注度檢核</h2><p>請閱讀下方題目，並依照指定分數作答。</p></div>
-              ) : (
-                <div className="image-stage"><img src={`${import.meta.env.BASE_URL}stimuli/${displayId}.png`} alt={`評分照片 ${displayId}`} draggable="false" /></div>
-              )}
+              <div className="image-stage"><img src={`${import.meta.env.BASE_URL}stimuli/${displayId}.png`} alt={`評分照片 ${displayId}`} draggable="false" /></div>
             </div>
             <form onSubmit={submitRating} className="ratings-panel">
-              <RatingScale name={`appeal-${currentIndex}`} prompt={attentionCheck ? "為確認你仍在專心作答，本題請選「3」。" : "你整體有多喜歡這張照片？（把它當成一份含外框的現場紀念成品）"} low={attentionCheck ? "1" : "非常不喜歡"} high={attentionCheck ? "5" : "非常喜歡"} value={appeal} onChange={setAppeal} />
-              <RatingScale name={`naturalness-${currentIndex}`} prompt={attentionCheck ? "本題同樣請選「3」。" : "只看人物與畫面（忽略外框），這張照片看起來有多自然？"} low={attentionCheck ? "1" : "非常不自然"} high={attentionCheck ? "5" : "非常自然"} value={naturalness} onChange={setNaturalness} />
+              <RatingScale name={`appeal-${currentIndex}`} prompt="你整體有多喜歡這張照片？（把它當成一份含外框的現場紀念成品）" low="非常不喜歡" high="非常喜歡" value={appeal} onChange={setAppeal} />
+              <RatingScale name={`naturalness-${currentIndex}`} prompt="只看人物與畫面（忽略外框），這張照片看起來有多自然？" low="非常不自然" high="非常自然" value={naturalness} onChange={setNaturalness} />
               <button className="primary-button" type="submit" disabled={appeal === null || naturalness === null}>{currentIndex === sequence.length - 1 ? "送出評分" : "下一張"} <span aria-hidden="true">→</span></button>
               <p className="autosave">已自動儲存目前進度</p>
             </form>
