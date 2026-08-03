@@ -59,6 +59,7 @@ pnpm run build
 - P-201 ↔ P-257、P-283 ↔ P-227、P-293 ↔ P-243 是 test–retest 配對。
 - 先用 `analysis-key.csv` 依 `display_id` 解盲，再分別計算 appeal 與 naturalness。
 - 新竹 best／style2 的來源檔名已確認修正為 `Lab_best_2.png`，對應 P-257（重複題 P-201）。
+- 新竹 default 的三張來源檔已移除檔名前置空白：`Lab_default_0.png` 對應 P-227（重複題 P-283）、`Lab_default_1.png` 對應 P-262、`Lab_default_2.png` 對應 P-244。
 
 ## 6. 雙工作表資料結構
 
