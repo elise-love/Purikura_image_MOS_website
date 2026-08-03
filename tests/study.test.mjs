@@ -14,10 +14,13 @@ const styles = readFileSync(new URL("../src/styles.css", import.meta.url), "utf8
 const receiver = readFileSync(new URL("../google-apps-script/Code.gs", import.meta.url), "utf8");
 const readme = readFileSync(new URL("../README.md", import.meta.url), "utf8");
 const stimuli = readdirSync(new URL("../public/stimuli", import.meta.url)).filter((name) => name.endsWith(".png"));
+const webpStimuli = readdirSync(new URL("../public/stimuli", import.meta.url)).filter((name) => name.endsWith(".webp"));
 
 test("contains 30 blinded image assets (27 formal + 3 repeats)", () => {
   assert.equal(stimuli.length, 30);
   assert.ok(stimuli.every((name) => /^P-\d{3}\.png$/.test(name)));
+  assert.equal(webpStimuli.length, 30);
+  assert.deepEqual(webpStimuli.map((name) => name.replace(/\.webp$/, ".png")).sort(), stimuli.sort());
 });
 
 test("public app source does not expose experimental condition labels", () => {
@@ -84,6 +87,17 @@ test("previous-photo navigation restores answers without duplicating rows", () =
   assert.match(app, /nextRatings\[currentIndex\] = \{/);
   assert.match(app, /currentIndex > 0 && <button[^>]*previous-button/);
   assert.match(styles, /\.rating-actions \{/);
+});
+
+test("each rating remounts the stimulus image and returns to the photo", () => {
+  assert.match(app, /<picture key=\{`\$\{currentIndex\}-\$\{displayId\}`\}>/);
+  assert.match(app, /data-display-id=\{displayId\}/);
+  assert.match(app, /window\.scrollTo\(\{ top: 0, left: 0, behavior: "auto" \}\)/);
+  assert.match(app, /照片載入中，請稍候/);
+  assert.match(app, /onLoad=\{\(\) => setImageLoaded\(true\)\}/);
+  assert.match(app, /disabled=\{!imageLoaded\}/);
+  assert.match(app, /<source srcSet=\{stimulusUrl\(displayId, "webp"\)\} type="image\/webp" \/>/);
+  assert.match(app, /sequence\.slice\(currentIndex \+ 1, currentIndex \+ 4\)/);
 });
 
 test("Google Sheets receiver writes linked participant and rating tables", () => {
