@@ -76,3 +76,10 @@ test("Hsinchu best style-2 mapping uses the corrected source filename", () => {
   assert.match(readme, /P-257（重複題 P-201）/);
   assert.equal(readme.includes("Lab_default_1.png` 的條件名稱有歧義"), false);
 });
+
+test("Hsinchu default source filenames have no leading spaces", () => {
+  assert.match(readme, /`Lab_default_0\.png` 對應 P-227（重複題 P-283）/);
+  assert.match(readme, /`Lab_default_1\.png` 對應 P-262/);
+  assert.match(readme, /`Lab_default_2\.png` 對應 P-244/);
+  assert.equal(readme.includes("Hsinchu/ Lab_default_"), false);
+});
