@@ -1,6 +1,6 @@
 # Photo Booth 人類 MOS 評分網站
 
-這是一個可部署到 GitHub Pages 的匿名、雙盲、5 分制 ACR 評分網站。網站包含 27 張正式刺激圖與 3 張一致性重複，並將參與者平均分派到正序／反序兩個平衡版本。
+這是一個可部署到 GitHub Pages 的匿名、雙盲、5 分制 ACR 評分網站。網站包含 27 張正式刺激圖與 3 張一致性重複，並為每位參與者建立固定、可重現的限制式隨機順序。
 
 ## 1. 先連接 Google 試算表
 
@@ -47,6 +47,9 @@ pnpm run build
 
 ## 5. 分析注意事項
 
+- 順序以匿名參與者代碼為 seed 產生；重新整理或繼續未完成問卷時不會重新洗牌。
+- 三張重複圖與原圖之間至少保留 8 個其他評分畫面，且重複圖彼此不相鄰。
+- `sequence_version` 記錄隨機化演算法版本與 seed；每列的 `order` 與 `display_id` 可重建實際呈現順序。
 - P-201 ↔ P-257、P-283 ↔ P-227、P-293 ↔ P-243 是 test–retest 配對。
 - 先用 `analysis-key.csv` 依 `display_id` 解盲，再分別計算 appeal 與 naturalness。
 - 新竹 `Lab_default_1.png` 的條件名稱有歧義；細節與上線前核對要求請見 `research_private/README.md`。
