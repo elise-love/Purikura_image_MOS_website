@@ -393,7 +393,7 @@ export default function App() {
             <div className="step-kicker">評分方式</div>
             <h1>每張照片，回答兩題</h1>
             <div className="instruction-card appeal-card">
-              <span>01</span><div><h2>整體喜歡度</h2><p>把照片當成一份現場紀念成品，<b>包含它的外框</b>，你整體有多喜歡？</p></div>
+              <span>01</span><div><h2>整體喜歡度</h2><p><b>請忽略人物本身的動作、表情、姿勢、服裝與造型</b>，把照片當成一份包含外框的現場紀念成品，只評估整體視覺效果：你有多喜歡？</p></div>
             </div>
             <div className="instruction-card natural-card">
               <span>02</span><div><h2>影像自然度</h2><p><b>請忽略人物本身的動作、表情、姿勢、服裝與造型，也忽略裝飾外框</b>，只評估影像處理後的畫面是否自然。請觀察整體明暗與曝光是否合理（有沒有過亮或過暗）、色彩是否過度飽和、膚色是否自然，以及是否有銳化過頭、邊緣不自然或其他明顯的影像處理痕跡。</p></div>
@@ -415,7 +415,7 @@ export default function App() {
               <div className="image-stage"><img src={`${import.meta.env.BASE_URL}stimuli/${displayId}.png`} alt={`評分照片 ${displayId}`} draggable="false" /></div>
             </div>
             <form onSubmit={submitRating} className="ratings-panel">
-              <RatingScale name={`appeal-${currentIndex}`} prompt="你整體有多喜歡這張照片？（把它當成一份含外框的現場紀念成品）" low="非常不喜歡" high="非常喜歡" value={appeal} onChange={setAppeal} />
+              <RatingScale name={`appeal-${currentIndex}`} prompt="忽略人物的動作、表情、姿勢、服裝與造型；把照片當成包含外框的現場紀念成品，你整體有多喜歡？" low="非常不喜歡" high="非常喜歡" value={appeal} onChange={setAppeal} />
               <RatingScale
                 name={`naturalness-${currentIndex}`}
                 prompt="忽略人物的動作、表情、姿勢、服裝與造型，以及裝飾外框；只評估影像處理後的整體自然度。"
