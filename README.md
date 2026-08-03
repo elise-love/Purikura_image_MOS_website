@@ -12,7 +12,13 @@ GitHub Pages 本身不能接收資料，因此本專案用 Google Apps Script �
 4. 按「部署 → 新增部署作業 → 網頁應用程式」。
 5. 執行身分選「我」，誰可以存取選「任何人」。
 6. 複製部署後的 `/exec` 網址，貼進 `config.js` 的 `endpoint`。
-7. 先完整試填一次，確認試算表自動出現 `MOS_responses` 工作表與 30 筆資料列。
+7. 在 Apps Script 編輯器先執行一次 `setupSheets()`，授權後會建立兩張工作表。
+8. 選擇「部署 → 管理部署作業 → 編輯 → 新版本」，重新部署後仍沿用原本的 `/exec` 網址。
+9. 完整試填一次，確認：
+   - `MOS_participants` 新增 1 行受試者摘要。
+   - `MOS_ratings` 新增 30 行逐圖原始評分。
+
+原有的 `MOS_responses` 不會被刪除或覆寫；新版資料改寫入上述兩張工作表。
 
 ## 2. 部署 GitHub Pages
 
@@ -53,3 +59,10 @@ pnpm run build
 - P-201 ↔ P-257、P-283 ↔ P-227、P-293 ↔ P-243 是 test–retest 配對。
 - 先用 `analysis-key.csv` 依 `display_id` 解盲，再分別計算 appeal 與 naturalness。
 - 新竹 `Lab_default_1.png` 的條件名稱有歧義；細節與上線前核對要求請見 `research_private/README.md`。
+
+## 6. 雙工作表資料結構
+
+- `MOS_participants`：每位受試者一行，包含背景資料、完成題數、平均分數、平均反應時間、重複題 MAE 與資料完整狀態。
+- `MOS_ratings`：每張照片一行，只保留逐圖評分與呈現順序。
+- 兩張表以相同的 `submission_id` 連結。
+- `data_status = COMPLETE` 只代表收到 30 個不重複顯示 ID；重複題 MAE 的排除門檻仍應在查看研究結果前預先定義。
